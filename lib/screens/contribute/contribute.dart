@@ -17,7 +17,7 @@ class _ContributeState extends State<Contribute> {
       ),
       body: Column(
         children: [
-          Text('Contribute')
+          Text('hellogit ')
         ],
       ),
     );
