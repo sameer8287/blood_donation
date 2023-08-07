@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 
 // void main() {
@@ -17,7 +18,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // final prefs = await SharedPreferences.getInstance();
+  Stripe.publishableKey = 'pk_live_51NZrx9SDNBy3qJLDAMh5kWzMhcc6gzmf3IB5PMy7QeN26MmtXHIYZtvcOlcczVI79ZrZk56wBHooKvL8013lwjMm00hFRZFoDO';
   runApp(
     DevicePreview(
       enabled: kReleaseMode,
