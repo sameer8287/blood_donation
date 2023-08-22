@@ -44,5 +44,16 @@ var routerProvider = Provider((ref) => GoRouter(initialLocation: '/', routes: [
         builder: (context, state) {
           return UserAccount();
         },
+      ),
+      GoRoute(
+        path: '/personalDetails',
+        name: 'personalDetails',
+        builder: (context, state) {
+          return PersonalDetailsForm(
+            email: state.queryParameters['email'].toString() ,
+            pass: state.queryParameters['pass'].toString(),
+          );
+        },
       )
+
     ]));

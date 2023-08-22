@@ -2,6 +2,7 @@ import 'package:blood_donation/constant/colors.dart';
 import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
 // ignore: must_be_immutable
@@ -9,7 +10,7 @@ class CustomDateTimePicker extends ConsumerStatefulWidget {
   // DateTime selectedValue;
   String hint;
   final Function(dynamic)? getValue;
-  CustomDateTimePicker({super.key, required this.getValue,required this.hint});
+  CustomDateTimePicker({super.key, required this.getValue, required this.hint});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -21,10 +22,10 @@ class _CustomDateTimePickerState extends ConsumerState<CustomDateTimePicker> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.960,
-      height: MediaQuery.of(context).size.width * 0.2,
+      height: 50.h,
       child: DateTimeField(
         decoration: InputDecoration(
-            label:  Text(widget.hint),
+            label: Text(widget.hint),
             hintText: 'Select Date',
             hintStyle: const TextStyle(
               color: Colors.black,

@@ -123,7 +123,8 @@ class _RequestBloodState extends ConsumerState<AddRequestBlood> {
     return Scaffold(
         appBar: AppBar(
           title: Text('Blood Request'),
-          automaticallyImplyLeading: false,
+          centerTitle: true,
+          automaticallyImplyLeading: true,
           elevation: 1,
         ),
         body: SingleChildScrollView(
@@ -137,18 +138,18 @@ class _RequestBloodState extends ConsumerState<AddRequestBlood> {
                   Row(
                     children: [
                       Expanded(
-                          child: CustomTextformField(
+                          child: CustomTextField(
                               cont: firstName, hint: 'First Name')),
                       getHorizontalSpace(10),
                       Expanded(
-                          child: CustomTextformField(
+                          child: CustomTextField(
                         cont: lastName,
                         hint: 'Last Name',
                       ))
                     ],
                   ),
                   getVerticalSpace(10),
-                  CustomTextformField(cont: PhoneNumber, hint: 'Phone Number'),
+                  CustomTextField(cont: PhoneNumber, hint: 'Phone Number'),
                   getVerticalSpace(10),
                   CustomDateTimePicker(
                     hint: 'Required date',
@@ -346,51 +347,41 @@ class _RequestBloodState extends ConsumerState<AddRequestBlood> {
                   ),
                   getVerticalSpace(30),
                   Roundbtn(
+                      height: 0.06,
                       title: 'Request Blood',
                       ontap: () {
-                        if(bloodGroupType.isEmpty)
-                        {
+                        if (bloodGroupType.isEmpty) {
                           EasyLoading.showError('Select Blood Group');
-                        }
-                        else if(firstName.text.isEmpty || lastName.text.isEmpty)
-                        {
+                        } else if (firstName.text.isEmpty ||
+                            lastName.text.isEmpty) {
                           EasyLoading.showError('Full Name is Mandatory');
-                        }
-                        else if(PhoneNumber.text.isEmpty)
-                        {
+                        } else if (PhoneNumber.text.isEmpty) {
                           EasyLoading.showError('Phone Number is Mandatory');
-                        }
-                        else if(quantity == 0)
-                        {
+                        } else if (quantity == 0) {
                           EasyLoading.showError('Quantity should be atleast 1');
-                        }
-                        else if(replacement.isEmpty)
-                        {
-                          EasyLoading.showError('Select the Replacement Availability');
-                        }
-                        else if(scheduleDate.toString().isEmpty)
-                        {
+                        } else if (replacement.isEmpty) {
+                          EasyLoading.showError(
+                              'Select the Replacement Availability');
+                        } else if (scheduleDate.toString().isEmpty) {
                           EasyLoading.showError('Required Date is Mandatory');
-                        }
-                        else if(type.isEmpty)
-                        {
+                        } else if (type.isEmpty) {
                           EasyLoading.showError('Select the type');
+                        } else {
+                          ref.read(getProvider).postBloodRequest(
+                              BloodRequestModel(
+                                bloodGroup: bloodGroupType,
+                                firstName: firstName.text,
+                                lastName: lastName.text,
+                                phoneNumber: int.parse(PhoneNumber.text),
+                                quantity: quantity,
+                                replacement: replacement,
+                                requiredDate: scheduleDate.toString(),
+                                type: type,
+                              ),
+                              context);
                         }
-                        else{
-                        ref.read(getProvider).postBloodRequest(
-                          BloodRequestModel(
-                            bloodGroup: bloodGroupType, 
-                            firstName: firstName.text, 
-                            lastName: lastName.text, 
-                            phoneNumber: int.parse(PhoneNumber.text), 
-                            quantity: quantity, 
-                            replacement: replacement, 
-                            requiredDate: scheduleDate.toString(), 
-                            type: type,
-                            ),
-                            context
-                        );}
-                      })
+                      }),
+                  getVerticalSpace(30),
                 ],
               ),
             ),

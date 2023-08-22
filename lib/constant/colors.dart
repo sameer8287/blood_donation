@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 Color btnclr = Colors.deepPurple.shade300;
 
 Color primaryColor = Colors.black;
+Color primaryClr = Color(0xffFF725E);
 const logoColor = Color(0xffd7b56d);
 const btnColor = Color(0xff4b4393);
 const whiteColor = Color(0xffffffff);

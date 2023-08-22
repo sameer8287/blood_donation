@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 class Roundbtn extends StatefulWidget {
   final String title;
   final VoidCallback ontap;
-  const Roundbtn({Key? key, required this.title, required this.ontap})
+  final double height;
+   Roundbtn({Key? key, required this.title, required this.ontap,required this.height})
       : super(key: key);
 
   @override
@@ -17,7 +18,7 @@ class _RoundbtnState extends State<Roundbtn> {
     return InkWell(
       onTap: widget.ontap,
       child: Container(
-          height: MediaQuery.of(context).size.height * 0.06,
+          height: MediaQuery.of(context).size.height * widget.height,
           width: MediaQuery.of(context).size.width ,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),

@@ -1,10 +1,13 @@
+
+// ignore_for_file: prefer_const_constructors
+
+import 'dart:developer';
+
 import 'package:blood_donation/components/round_btn.dart';
 import 'package:blood_donation/provider/data_provider.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,7 +60,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         TextFormField(
                           controller: emilcont,
                           keyboardType: TextInputType.emailAddress,
-                          autofillHints: [AutofillHints.email],
+                          autofillHints: const [AutofillHints.email],
                           decoration: InputDecoration(
                               label: Text('Email'),
                               prefixIcon: Icon(Icons.email_outlined),
@@ -97,8 +100,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ],
                     )),
                 Roundbtn(
+                  height: 0.06,
                     title: 'Login',
-                    ontap: () {
+                    ontap: () async{
+                      
                       if (_formkey.currentState!.validate()) {
                         ref.read(getProvider).login(emilcont.text, passcont.text, context);
                       }
@@ -110,7 +115,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                    children: const [
                       Expanded(
                           child: Divider(
                         thickness: 1,

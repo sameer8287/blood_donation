@@ -10,9 +10,14 @@ class Donate extends StatefulWidget {
 class _DonateState extends State<Donate> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(''),
+    return WillPopScope(
+      onWillPop: ()async{
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(''),
+        ),
       ),
     );
   }

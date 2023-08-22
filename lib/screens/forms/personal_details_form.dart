@@ -1,24 +1,32 @@
-import 'dart:developer';
-
-import 'package:blood_donation/components/custom_cupertino_textfield.dart';
-import 'package:blood_donation/components/custom_descrption_bo.dart';
+import 'package:blood_donation/boxes/user_boxes.dart';
 import 'package:blood_donation/components/custom_drop_down.dart';
 import 'package:blood_donation/components/custom_text_field.dart';
 import 'package:blood_donation/components/custom_time_picker.dart';
 import 'package:blood_donation/components/get_space.dart';
 import 'package:blood_donation/components/reusable_bottom_btn.dart';
 import 'package:blood_donation/constant/colors.dart';
+import 'package:blood_donation/model/hive/user_details_model.dart';
+import 'package:blood_donation/model/personal_details_model.dart';
+import 'package:blood_donation/provider/data_provider.dart';
+import 'package:csc_picker/csc_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive/hive.dart';
 
-class PersonalDetailsForm extends StatefulWidget {
-  const PersonalDetailsForm({super.key});
+class PersonalDetailsForm extends ConsumerStatefulWidget {
+  final String email;
+  final String pass;
+  const PersonalDetailsForm(
+      {super.key, required this.email, required this.pass});
 
   @override
-  State<PersonalDetailsForm> createState() => _PersonalDetailsFormState();
+  ConsumerState<PersonalDetailsForm> createState() =>
+      _PersonalDetailsFormState();
 }
 
-class _PersonalDetailsFormState extends State<PersonalDetailsForm> {
+class _PersonalDetailsFormState extends ConsumerState<PersonalDetailsForm> {
   TextEditingController firstName = TextEditingController();
   TextEditingController LastName = TextEditingController();
   TextEditingController customDescription = TextEditingController();
@@ -26,6 +34,12 @@ class _PersonalDetailsFormState extends State<PersonalDetailsForm> {
   String bloodGroupType = '';
   String sufferedCovid19 = '';
   String testedCovid19 = '';
+
+  String country = '';
+  String? state = '';
+  String? city = '';
+  String? dob = '';
+  var box;
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +58,47 @@ class _PersonalDetailsFormState extends State<PersonalDetailsForm> {
               Row(
                 children: [
                   Expanded(
-                      child: CustomTextformField(
-                          cont: firstName, hint: 'First Name')),
+                      child:
+                          CustomTextField(cont: firstName, hint: 'First Name')),
                   getHorizontalSpace(10),
                   Expanded(
-                      child: CustomTextformField(
+                      child: CustomTextField(
                     cont: LastName,
                     hint: 'Last Name',
                   ))
                 ],
+              ),
+              getVerticalSpace(10),
+              CustomDateTimePicker(
+                hint: 'Date of Birth',
+                getValue: (e) {
+                  setState(() {
+                    dob = e.toString();
+                  });
+                },
+              ),
+              getVerticalSpace(10),
+              CSCPicker(
+                layout: Layout.vertical,
+                onCountryChanged: (value) {
+                  setState(() {
+                    country = value;
+                  });
+                },
+                onStateChanged: (value) {
+                  setState(() {
+                    state = value;
+                  });
+                },
+                onCityChanged: (cty) {
+                  // city = cty!;
+                  setState(() {
+                    city = cty;
+                  });
+                },
+                countryDropdownLabel: "Country",
+                stateDropdownLabel: "State",
+                cityDropdownLabel: "City",
               ),
               getVerticalSpace(10),
               Align(
@@ -122,14 +168,14 @@ class _PersonalDetailsFormState extends State<PersonalDetailsForm> {
                 },
                 asyncItems: (_) async {
                   return [
-                    'A +',
-                    'B +',
-                    'O +',
-                    'A -',
-                    'B -',
-                    'O -',
-                    'AB +',
-                    'AB -',
+                    'A+',
+                    'B+',
+                    'O+',
+                    'A-',
+                    'B-',
+                    'O-',
+                    'AB+',
+                    'AB-',
                   ];
                 },
                 selectedItem: bloodGroupType,
@@ -179,16 +225,6 @@ class _PersonalDetailsFormState extends State<PersonalDetailsForm> {
                 ),
               ),
               getVerticalSpace(10),
-              CustomDateTimePicker(
-                hint: 'Date of Birth',
-                getValue: (e) {
-                  log(e);
-                },
-              ),
-              CustomDiscriptionBox(
-                notes: customDescription,
-                txt: 'Address',
-              )
             ],
           ),
         ),
@@ -209,7 +245,49 @@ class _PersonalDetailsFormState extends State<PersonalDetailsForm> {
               ),
             ),
             ReusableBottomButtons(
-              ontap: () {},
+              ontap: () async {
+                if (firstName.text.isEmpty) {
+                  EasyLoading.showError("First Name is Empty");
+                } else if (LastName.text.isEmpty) {
+                  EasyLoading.showError("Last Name is Empty");
+                } else if (dob == '') {
+                  EasyLoading.showError("DOB is Empty");
+                } else if (country == '') {
+                  EasyLoading.showError("Country is Empty");
+                } else if (state == '') {
+                  EasyLoading.showError("Country is Empty");
+                } else if (city == '') {
+                  EasyLoading.showError("City is Empty");
+                } else if (gender == '') {
+                  EasyLoading.showError("Select the gender");
+                } else if (bloodGroupType == '') {
+                  EasyLoading.showError("Select Blood Group");
+                } else if (sufferedCovid19 == '') {
+                  EasyLoading.showError("Select Covid 19 option");
+                } else {
+                  final data = PersonalDetailsModel(
+                      firstName: firstName.text,
+                      lastName: LastName.text,
+                      dob: dob!,
+                      country: country,
+                      state: state!,
+                      city: city!,
+                      gender: gender,
+                      bloodGroup: bloodGroupType,
+                      sufferedCovid19: sufferedCovid19,
+                      email: widget.email
+                      );
+                  // final box1 = UserBoxes.getData();
+                  // box1.add(data);
+                  // data.save().then(
+                  //     (value) => EasyLoading.showSuccess('User Profile Created'));
+                  ref.read(getProvider).postUserDetails(
+                      personalDetail: data,
+                      context: context,
+                      pass: widget.pass,
+                      userName: widget.email);
+                }
+              },
               txt: 'Save',
               icn: const Icon(
                 Icons.check,
