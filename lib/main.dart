@@ -19,7 +19,7 @@ void main() async {
   Hive.registerAdapter(UserDetailsModelAdapter());
   await Hive.openBox<UserDetailsModel>('userbox');
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // Stripe.publishableKey = 'pk_live_51NZrx9SDNBy3qJLDAMh5kWzMhcc6gzmf3IB5PMy7QeN26MmtXHIYZtvcOlcczVI79ZrZk56wBHooKvL8013lwjMm00hFRZFoDO';
+ 
   runApp(
     DevicePreview(
       enabled: !kReleaseMode,
