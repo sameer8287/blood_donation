@@ -126,6 +126,7 @@ class _RequestBloodState extends ConsumerState<AddRequestBlood> {
           centerTitle: true,
           automaticallyImplyLeading: true,
           elevation: 1,
+          
         ),
         body: SingleChildScrollView(
           child: SafeArea(
@@ -170,14 +171,14 @@ class _RequestBloodState extends ConsumerState<AddRequestBlood> {
                     },
                     asyncItems: (_) async {
                       return [
-                        'A +',
-                        'B +',
-                        'O +',
-                        'A -',
-                        'B -',
-                        'O -',
-                        'AB +',
-                        'AB -',
+                        'A+',
+                        'B+',
+                        'O+',
+                        'A-',
+                        'B-',
+                        'O-',
+                        'AB+',
+                        'AB-',
                       ];
                     },
                     selectedItem: bloodGroupType,

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -42,7 +43,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             Roundbtn(
                 height: 0.06,
                 title: "Create Account",
-                ontap: () {
+                ontap: () async {
                   if (email.text.isEmpty) {
                     EasyLoading.showError('Email Required');
                   } else if (confirmpass.text != pass.text) {
@@ -50,11 +51,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   } else if (confirmpass.text.isEmpty && pass.text.isEmpty) {
                     EasyLoading.showError('Enter Password');
                   } else {
-                    // ref.read(getProvider).signUp(email.text, pass.text, context);
+                    SharedPreferences sp =
+                        await SharedPreferences.getInstance();
+                    sp.setString('email', email.text.toString());
                     GoRouter.of(context).pushNamed('personalDetails',
                         queryParameters: {
-                          'email': email.text,
-                          'pass': pass.text
+                          'email': sp.getString('email'),
+                          'pass': pass.text,
+                          'id': 'true'
                         });
                   }
                 })

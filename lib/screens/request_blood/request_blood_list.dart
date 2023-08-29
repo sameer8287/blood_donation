@@ -1,70 +1,192 @@
 // ignore_for_file: unnecessary_null_comparison
+import 'package:blood_donation/components/custom_filled_btn.dart';
 import 'package:blood_donation/components/get_space.dart';
 import 'package:blood_donation/constant/colors.dart';
+import 'package:blood_donation/provider/data_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-class RequestBloodList extends StatefulWidget {
+class RequestBloodList extends ConsumerStatefulWidget {
   const RequestBloodList({super.key});
 
   @override
-  State<RequestBloodList> createState() => _RequestBloodListState();
+  ConsumerState<RequestBloodList> createState() => _RequestBloodListState();
 }
 
-class _RequestBloodListState extends State<RequestBloodList> {
-  Stream<QuerySnapshot> stream() {
-    final userStream =
-        FirebaseFirestore.instance.collection('bloodRequest').snapshots();
-    return userStream;
-  }
+class _RequestBloodListState extends ConsumerState<RequestBloodList> {
+  bool textfiledVisibilty = false;
 
   List<DocumentSnapshot> documents = [];
 
-  Stream<QuerySnapshot> searchFromFirebase(String data) {
-    var search = FirebaseFirestore.instance
-        .collection('bloodRequest')
-        .where('bloodGroup', isEqualTo: data)
-        .snapshots();
-    return search;
+  int? isChipSelected1;
+  List<RawChipModel> location = [
+    RawChipModel(color: whiteColor, label: 'A+'),
+    RawChipModel(color: whiteColor, label: 'B+'),
+    RawChipModel(color: whiteColor, label: 'O+'),
+    RawChipModel(color: whiteColor, label: 'A-'),
+    RawChipModel(color: whiteColor, label: 'B-'),
+    RawChipModel(color: whiteColor, label: 'O-'),
+    RawChipModel(color: whiteColor, label: 'AB+'),
+    RawChipModel(color: whiteColor, label: 'AB+'),
+  ];
+
+  // List<Widget> bloodGroupList() {
+
+  //   List<Widget> chips = [];
+  //   for (int i = 0; i < location.length; i++) {
+  //     Widget item = RawChip(
+  //       showCheckmark: false,
+  //       labelPadding: const EdgeInsets.symmetric(horizontal: 22),
+  //       disabledColor: Colors.black,
+  //       side: BorderSide.none,
+  //       label: Text(location[i].label),
+  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+  //       labelStyle: TextStyle(
+  //           color: isChipSelected1 == i ? Colors.white : Colors.black,
+  //           fontSize: 14),
+  //       backgroundColor: location[i].color,
+
+  //       onSelected: (bool value) {
+  //         setState(() {
+  //           isChipSelected1 = i;
+  //         });
+  //       },
+  //     );
+  //     chips.add(item);
+  //   }
+  //   return chips;
+  // }
+
+  List<Widget> bloodGroupList() {
+    List<Widget> chips = [];
+    for (int i = 0; i < location.length; i++) {
+      Widget item = RawChip(
+        showCheckmark: false,
+        labelPadding: const EdgeInsets.symmetric(horizontal: 22),
+        disabledColor: Colors.black,
+        side: BorderSide.none,
+        label: Text(location[i].label),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        labelStyle: TextStyle(
+          color: isChipSelected1 == i ? Colors.white : Colors.black,
+        ),
+        backgroundColor: location[i].color,
+        selected: isChipSelected1 == i,
+        selectedColor: primary,
+        onSelected: (bool value) {
+          GoRouter.of(context).pop();
+          setState(() {
+            searchValue = location[i].label;
+            isChipSelected1 = i;
+            // locationValue = location[i].label;
+            // checkArea = true;
+          });
+        },
+      );
+      chips.add(item);
+    }
+    return chips;
+  }
+
+  void bottomSheet() {
+    showModalBottomSheet(
+      showDragHandle: true,
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.only(left: 20, right: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Select Blood Group',
+                    style: TextStyle(fontSize: 22),
+                  ),
+                  getVerticalSpace(40.h),
+                  Wrap(spacing: 9.1.w, children: bloodGroupList()),
+                ],
+              ),
+              CustomFilledButton(
+                onPressed: () {
+                  GoRouter.of(context).pop();
+                  setState(() {
+                    searchValue = "";
+                  });
+                },
+                textColor: whiteColor,
+                buttonText: 'Clear Filter',
+              )
+            ],
+          ),
+        );
+      },
+    );
   }
 
   TextEditingController searchKey = TextEditingController();
   String searchValue = "";
   @override
   Widget build(BuildContext context) {
+    var stream = ref.watch(getProvider).stream();
+    var searchFromFirebase =
+        ref.watch(getProvider).searchFromFirebase(searchValue);
     return WillPopScope(
       onWillPop: () async {
         return false;
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Blood Request'),
+          // leading: IconButton(
+          //     onPressed: () {
+          //       setState(() {
+          //         if (textfiledVisibilty) {
+          //           textfiledVisibilty = false;
+          //         } else {
+          //           textfiledVisibilty = true;
+          //         }
+          //       });
+          //     },
+          //     icon: Icon(
+          //       Icons.search,
+          //       color: Colors.black,
+          //       // size: 30,
+          //     )),
+          title: textfiledVisibilty
+              ? TextFormField(
+                  controller: searchKey,
+                  decoration: InputDecoration(
+                      // prefixIcon: Icon(Icons.search),
+                      hintText: 'Search Blood Group'),
+                  onChanged: (value) {
+                    setState(() {
+                      searchValue = value.toUpperCase();
+                    });
+                  },
+                )
+              : Text('Blood Request'),
           automaticallyImplyLeading: false,
+          centerTitle: true,
+          actions: [
+            IconButton(
+                onPressed: () {
+                  bottomSheet();
+                },
+                icon: Icon(Icons.filter_list,color: searchValue== '' ? Colors.black : primary))
+          ],
         ),
         body: Column(
           children: [
             getVerticalSpace(20),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextFormField(
-                controller: searchKey,
-                decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search),
-                    hintText: 'Search Blood Group'),
-                onChanged: (value) {
-                  setState(() {
-                    searchValue = value.toUpperCase();
-                  });
-                },
-              ),
-            ),
-            getVerticalSpace(20),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: searchValue == ""
-                    ? stream()
-                    : searchFromFirebase(searchValue),
+                stream: searchValue == "" ? stream : searchFromFirebase,
                 builder: (context, streamSnapshot) {
                   if (streamSnapshot.connectionState ==
                       ConnectionState.waiting) {
@@ -206,4 +328,11 @@ class _RequestBloodListState extends State<RequestBloodList> {
       ),
     );
   }
+}
+
+class RawChipModel {
+  final String label;
+  final Color color;
+
+  RawChipModel({required this.color, required this.label});
 }

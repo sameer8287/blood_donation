@@ -24,9 +24,6 @@ class DataProvider {
     _auth
         .signInWithEmailAndPassword(email: email, password: pass)
         .then((value) async {
-      SharedPreferences sp = await SharedPreferences.getInstance();
-      sp.setBool('check', true);
-      sp.setString('email', email);
       EasyLoading.showSuccess('Login successfully');
       GoRouter.of(context).push('/landing');
     }).onError((error, stackTrace) {
@@ -52,8 +49,8 @@ class DataProvider {
 
   void logOut(BuildContext context) {
     EasyLoading.show(status: 'Loading');
-    _auth.signOut().then((value) async{
-      SharedPreferences sp =await  SharedPreferences.getInstance();
+    _auth.signOut().then((value) async {
+      SharedPreferences sp = await SharedPreferences.getInstance();
       sp.clear();
       EasyLoading.showSuccess('Logout Succesfully');
       GoRouter.of(context).pushReplacement('/login');
@@ -72,27 +69,65 @@ class DataProvider {
     });
   }
 
+  Stream<QuerySnapshot> searchFromFirebase(String data) {
+    var search = FirebaseFirestore.instance
+        .collection('bloodRequest')
+        .where('bloodGroup', isEqualTo: data)
+        .snapshots();
+    return search;
+  }
+  
+  Stream<QuerySnapshot> stream() {
+    final userStream =
+        FirebaseFirestore.instance.collection('bloodRequest').snapshots();
+    return userStream;
+  }
+
   void postUserDetails(
       {PersonalDetailsModel? personalDetail,
       BuildContext? context,
       String? userName,
-      String? pass}) {
+      String? pass}) async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
     EasyLoading.show(status: 'Loading...');
     final db = FirebaseFirestore.instance.collection('userDetails');
-    db.add(personalDetail!.toJson()).then((value) {
+    db.add(personalDetail!.toJson()).then((DocumentReference doc) {
       signUp(userName!, pass!, context);
+      log(doc.id.toString() + ' doc ID');
+      sp.setString('userDetailDocId', doc.id.toString());
     }).catchError((error) {
       EasyLoading.showError(error.toString());
     });
   }
 
-  Future<PersonalDetailsModel> accountDetails() async {
+  Future<void> updateUserInfo(
+      {PersonalDetailsModel? updatedDetails, BuildContext? context}) async {
+    EasyLoading.show();
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    var docID = sp.getString('userDetailDocId');
+    log(docID.toString()+ "docID new ");
+    FirebaseFirestore.instance
+        .collection('userDetails')
+        .doc(docID)
+        .update(updatedDetails!.toJson())
+        .then((value) {
+      EasyLoading.showSuccess("Details Updated Successfully");
+      GoRouter.of(context!).pop();
+    }).catchError((e) {
+      EasyLoading.showError(e.toString());
+    });
+    EasyLoading.dismiss();
+  }
+
+  Future<PersonalDetailsModel> fetchAccountDetails() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     var id = sp.getString('email');
+    log(id.toString() +" email");
     var data = await FirebaseFirestore.instance
         .collection('userDetails')
         .where('email', isEqualTo: id)
         .get();
+
     final userData =
         data.docs.map((e) => PersonalDetailsModel.fromSnapshot(e)).single;
     return userData;

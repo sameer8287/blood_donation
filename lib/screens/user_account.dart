@@ -4,6 +4,7 @@ import 'package:blood_donation/provider/data_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class UserAccount extends ConsumerStatefulWidget {
   const UserAccount({super.key});
@@ -15,14 +16,15 @@ class UserAccount extends ConsumerStatefulWidget {
 class _UserAccountState extends ConsumerState<UserAccount> {
   @override
   Widget build(BuildContext context) {
-    var data = ref.watch(getProvider).accountDetails();
+    var data = ref.watch(getProvider).fetchAccountDetails();
     return WillPopScope(
-      onWillPop: ()async{
+      onWillPop: () async {
         return false;
       },
       child: Scaffold(
           appBar: AppBar(
-            automaticallyImplyLeading: false,
+            leading: Icon(Icons.menu),
+            centerTitle: true,
             title: Text('User Account'),
             actions: [
               IconButton(
@@ -35,6 +37,7 @@ class _UserAccountState extends ConsumerState<UserAccount> {
           body: FutureBuilder(
             future: data,
             builder: (context, snapshot) {
+              // snapshot.data.;
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(
                   child: CircularProgressIndicator(),
@@ -82,7 +85,8 @@ class _UserAccountState extends ConsumerState<UserAccount> {
                                 Text(
                                   '${snapshot.data!.firstName} ${snapshot.data!.lastName}',
                                   style: TextStyle(
-                                      fontSize: 22, fontWeight: FontWeight.w600),
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w600),
                                 ),
                                 Text(
                                   'User Name',
@@ -114,12 +118,43 @@ class _UserAccountState extends ConsumerState<UserAccount> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Personal Details',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 20,
-                                  color: Colors.red),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Personal Details',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 20,
+                                      color: Colors.red),
+                                ),
+                                IconButton(
+                                    onPressed: () {
+                                      GoRouter.of(context).pushNamed(
+                                          'personalDetails',
+                                          queryParameters: {
+                                            "email": snapshot.data!.email,
+                                            "pass": "",
+                                            'id': "false",
+                                            'firstName':
+                                                snapshot.data!.firstName,
+                                            'lastName': snapshot.data!.lastName,
+                                            'dob': snapshot.data!.dob,
+                                            'bloodGroup':
+                                                snapshot.data!.bloodGroup,
+                                            'city': snapshot.data!.city,
+                                            'country': snapshot.data!.country,
+                                            'gender': snapshot.data!.gender,
+                                            'state': snapshot.data!.state,
+                                            'sufferedCovid19':
+                                                snapshot.data!.sufferedCovid19
+                                          });
+                                    },
+                                    icon: Icon(
+                                      Icons.edit_note_outlined,
+                                      size: 30,
+                                    ))
+                              ],
                             ),
                             Divider(),
                             Text(

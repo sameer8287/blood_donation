@@ -52,6 +52,16 @@ var routerProvider = Provider((ref) => GoRouter(initialLocation: '/', routes: [
           return PersonalDetailsForm(
             email: state.queryParameters['email'].toString() ,
             pass: state.queryParameters['pass'].toString(),
+            id: state.queryParameters['id'].toString(),
+            firstName: state.queryParameters['firstName'].toString(),
+            lastName: state.queryParameters['lastName'].toString(),
+            dob: state.queryParameters['dob'].toString(),
+            bloodGroup: state.queryParameters['bloodGroup'].toString(),
+            city: state.queryParameters['city'].toString(),
+            country: state.queryParameters['country'].toString(),
+            gender: state.queryParameters['gender'].toString(),
+            state: state.queryParameters['state'].toString(),
+            sufferedCovid19: state.queryParameters['sufferedCovid19'].toString(),
           );
         },
       )
